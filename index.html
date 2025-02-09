@@ -414,20 +414,20 @@
     }
 
     function endRound() {
-      document.getElementById('questionText').textContent = "סיימת את הסבב!";
+      document.getElementById('questionText').textContent = "סיימת את הסט!";
       document.getElementById('optionsList').innerHTML = '';
       
       let feedback;
       if (score <= 3) {
-        feedback = "נסית יפה! בפעם הבאה בטח תצליח/י יותר!";
+        feedback = "נסית יפה! טוב שיש הרבה לאן להשתפר!";
       } else if (score <= 5) {
-        feedback = "יופי! את/ה בדרך הנכונה!";
+        feedback = "לא רע! אבל אפשר לשאוף ליותר!";
       } else if (score <= 7) {
-        feedback = "כל הכבוד! תוצאה מצוינת!";
+        feedback = "אני קורא לזה תוצאה סבירה פלוס! רואים את הפוטנציאל !";
       } else if (score <= 9) {
-        feedback = "מדהים! כמעט מושלם!";
+        feedback = "הופה! נהיה לי חם! זה די קרוב למצוין!";
       } else if (score === 10) {
-        feedback = "וואו! כל התשובות נכונות! את/ה אלוף/ה!";
+        feedback = "מצוין! כל התשובות נכונות! שווה להשקיע בך!";
       }
       
       document.getElementById('feedbackMessage').textContent = feedback;
