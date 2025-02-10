@@ -179,7 +179,7 @@
       { english: "dress",        hebrew: "שמלה",         options: ["שמלה", "חולצה", "נוצות טווס", "מכנסיים"] },
       { english: "eat",          hebrew: "לאכול",        options: ["לאכול", "לשתות", "לבשל", "לנקות"] },
       { english: "eyes",         hebrew: "עיניים",        options: ["עיניים", "אוזניים", "אף", "פה"] },
-      { english: "father",       hebrew: "אב",           options: ["אבא", "אמא", "אח", "בן"] },
+      { english: "father",       hebrew: "אבא",           options: ["אבא", "אמא", "אח", "בן"] },
       { english: "fly a kite",   hebrew: "להעיף עפיפון",  options: ["לטוס לחלל", "לעוף", "להעיף עפיפון", "להוציא ילד מהכיתה"] },
       { english: "funny",        hebrew: "מצחיק",        options: ["מצחיק", "עצוב", "סבבה אגוזים", "חלטורה"] },
       { english: "game",         hebrew: "משחק",         options: ["משחק", "להתחלק על השכל", "ספורט", "מוזיקה"] },
@@ -187,7 +187,7 @@
       { english: "home",         hebrew: "בית",          options: ["בית", "משרד", "בית ספר", "חנות"] },
       { english: "ice cream",    hebrew: "גלידה",        options: ["גלידה", "עוגה", "שוקולד", "קינוח"] },
       { english: "make",         hebrew: "לעשות",        options: ["לעשות", "להכות", "לבדוק", "לבקש"] },
-      { english: "mother",       hebrew: "אם",           options: ["אמא", "אבא", "אח", "בת"] },
+      { english: "mother",       hebrew: "אמא",           options: ["אמא", "אבא", "אח", "בת"] },
       { english: "mouth",        hebrew: "פה",           options: ["פה", "עיניים", "אוזניים", "לשון"] },
       { english: "near",         hebrew: "קרוב",         options: ["קרוב", "רחוק", "ילד בשם נירו", "מסובך"] },
       { english: "nose",         hebrew: "אף",           options: ["אף", "עיניים", "פה", "אוזניים"] },
@@ -378,7 +378,7 @@
       const buttons = document.querySelectorAll('.option-btn');
       buttons.forEach(button => button.disabled = true);
 
-      let delay = 2000;
+      let delay = 1200;
       if (selectedOption === currentWord.hebrew) {
         btn.classList.add('correct');
         score++;
@@ -391,7 +391,7 @@
           }
         });
         document.getElementById('feedbackMessage').textContent = `תשובה שגויה. התשובה הנכונה: ${currentWord.hebrew}`;
-        delay = 4000;
+        delay = 3000;
       }
       document.getElementById('score').textContent = score;
       updateLocalStorage(selectedOption === currentWord.hebrew);
@@ -423,7 +423,7 @@
       } else if (score <= 5) {
         feedback = "לא רע! אבל אפשר לשאוף ליותר!";
       } else if (score <= 7) {
-        feedback = "אני קורא לזה תוצאה סבירה פלוס! רואים את הפוטנציאל !";
+        feedback = "אני קורא לזה תוצאה סבירה פלוס! מזהים את הפוטנציאל שלך!";
       } else if (score <= 9) {
         feedback = "הופה! נהיה לי חם! זה די קרוב למצוין!";
       } else if (score === 10) {
