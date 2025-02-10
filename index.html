@@ -25,7 +25,7 @@
       margin-top: 0;
     }
     .question {
-      font-size: 1.1em;
+      font-size: 1em;
       margin-bottom: 20px;
     }
     .options {
@@ -57,10 +57,10 @@
     }
     .progress, .score {
       margin: 15px 0;
-      font-size: 1.1em;
+      font-size: 1em;
     }
     .message {
-      font-size: 1.1em;
+      font-size: 1em;
       margin-top: 20px;
     }
     .restart-btn {
@@ -391,7 +391,7 @@
           }
         });
         document.getElementById('feedbackMessage').textContent = `תשובה שגויה. התשובה הנכונה: ${currentWord.hebrew}`;
-        delay = 3000;
+        delay = 2300;
       }
       document.getElementById('score').textContent = score;
       updateLocalStorage(selectedOption === currentWord.hebrew);
