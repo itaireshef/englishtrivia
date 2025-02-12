@@ -12,16 +12,15 @@
       padding: 10px;
       text-align: center;
     }
-    /* עיצוב קונטיינר המשחק */
     .container {
       max-width: 600px;
-      margin: 60px auto 20px auto; /* מוסיפים רווח מלמעלה כדי לא להסתיר את האייקון */
+      margin: 60px auto 20px auto;
       background-color: #fff;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    h1, h2 {
+    h1 {
       margin-top: 0;
     }
     .question {
@@ -43,9 +42,6 @@
       border-radius: 5px;
       cursor: pointer;
       transition: background-color 0.3s;
-    }
-    button.option-btn:hover {
-      opacity: 0.9;
     }
     .correct {
       background-color: #4CAF50 !important;
@@ -73,100 +69,21 @@
       color: white;
       cursor: pointer;
     }
-    /* עיצוב האייקון "תפריט המבורגר" */
-    #hamburgerMenu {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      font-size: 30px;
-      cursor: pointer;
-      z-index: 1001;
-    }
-    /* עיצוב לוח ניהול אוצר מילים - מוסתר כברירת מחדל */
-    #uploadPanel {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: 300px;
-      height: 100%;
-      background-color: #e7f3fe;
-      border-left: 1px solid #b3d7ff;
-      box-shadow: -2px 0 5px rgba(0,0,0,0.3);
-      padding: 15px;
-      display: none;
-      z-index: 1000;
-      overflow-y: auto;
-    }
-    #uploadPanel h2 {
-      margin-top: 0;
-    }
-    #uploadPanel label {
-      display: block;
-      margin-top: 8px;
-    }
-    #uploadPanel input, #uploadPanel select {
-      padding: 5px;
-      margin-top: 5px;
-      width: 90%;
-      max-width: 250px;
-    }
-    #uploadPanel button {
-      margin-top: 10px;
-      padding: 8px 15px;
-      font-size: 1em;
-      cursor: pointer;
-    }
-    /* אייקון סגירה בתוך לוח ההעלאה */
-    #closeUploadPanel {
-      font-size: 24px;
-      cursor: pointer;
-      position: absolute;
-      top: 10px;
-      left: 10px;
-    }
   </style>
 </head>
 <body>
-  <!-- אייקון תפריט המבורגר -->
-  <div id="hamburgerMenu">☰</div>
-
-  <!-- לוח ניהול אוצר מילים (מוסתר כברירת מחדל) -->
-  <div id="uploadPanel">
-    <span id="closeUploadPanel">✖</span>
-    <h2>ניהול אוצר מילים</h2>
-    <label for="vocabName">שם סט אוצר מילים:</label>
-    <input type="text" id="vocabName" placeholder="הזן שם סט">
-    
-    <label for="vocabUpload">בחר קובץ אוצר מילים (JSON):</label>
-    <input type="file" id="vocabUpload" accept=".json">
-    
-    <br>
-    <button id="loadVocabBtn">העלה סט חדש</button>
-    
-    <br><br>
-    <label for="vocabSelect">בחר סט אוצר מילים:</label>
-    <select id="vocabSelect"></select>
-  </div>
-
-  <!-- משחק הטריוויה -->
   <div class="container">
     <h1>משחק טריוויה</h1>
     <div class="progress">שאלה <span id="currentQuestion">0</span> מתוך <span id="totalQuestions">10</span></div>
     <div class="score">ניקוד: <span id="score">0</span></div>
     <div class="question" id="questionText">שאלה תופיע כאן</div>
-    <ul class="options" id="optionsList">
-      <!-- אפשרויות התשובות יופיעו כאן -->
-    </ul>
+    <ul class="options" id="optionsList"></ul>
     <div class="message" id="feedbackMessage"></div>
     <button class="restart-btn" id="restartBtn" style="display:none;">התחל מחדש</button>
   </div>
 
   <script>
-    // ===============================
-    // הגדרות אוצר מילים
-    // ===============================
-    const defaultVocabulary = [
-      { english: "autumn",       hebrew: "סתיו",          options: ["סתיו", "אביב", "קיץ", "חורף"] },
+    const defaultVocabulary = [{ english: "autumn",       hebrew: "סתיו",          options: ["סתיו", "אביב", "קיץ", "חורף"] },
       { english: "basketball",   hebrew: "כדורסל",        options: ["כדורסל", "טניס", "גולף", "בייסבול"] },
       { english: "beautiful",    hebrew: "יפה",           options: ["יפה", "זוהר", "מטריף", "קסום"] },
       { english: "boots",        hebrew: "מגפיים",        options: ["מגפיים", "נעליים", "סנדלים", "נעלי ספורט"] },
@@ -228,128 +145,12 @@
 { english: "Can",        hebrew: "יכול",       options: ["יכול", "לא יכול", "מתכוון", "רוצה"] },
 { english: "Can’t",      hebrew: "לא יכול",    options: ["לא יכול", "יכול", "מתכנן", "רוצה"] }
     ];
-    
-    // מערך סטים של אוצר מילים (כל סט: { name, words })
-    let vocabSets = [];
-    // המשתנה שיכיל את אוצר המילים הנוכחי
-    let currentVocabulary = [];
 
-    // ===============================
-    // טעינה ושמירה ב-localStorage
-    // ===============================
-    function loadVocabSets() {
-      const stored = localStorage.getItem("vocabSets");
-      if (stored) {
-        try {
-          vocabSets = JSON.parse(stored);
-        } catch (e) {
-          console.error("שגיאה בטעינת אוצר המילים מ-localStorage", e);
-          vocabSets = [];
-        }
-      }
-      // אם אין סטים, נטען סט ברירת מחדל
-      if (!vocabSets || vocabSets.length === 0) {
-        vocabSets = [{
-          name: "אוצר מילים ברירת מחדל",
-          words: defaultVocabulary
-        }];
-        saveVocabSets();
-      }
-      // כברירת מחדל, נבחר הסט האחרון
-      currentVocabulary = vocabSets[vocabSets.length - 1].words;
-      updateVocabSelect();
-    }
-
-    function saveVocabSets() {
-      localStorage.setItem("vocabSets", JSON.stringify(vocabSets));
-    }
-
-    // עדכון תפריט הבחירה של סטי אוצר המילים
-    function updateVocabSelect() {
-      const select = document.getElementById("vocabSelect");
-      select.innerHTML = "";
-      vocabSets.forEach((set, index) => {
-        const option = document.createElement("option");
-        option.value = index;
-        option.textContent = set.name;
-        if (index === vocabSets.length - 1) {
-          option.selected = true;
-        }
-        select.appendChild(option);
-      });
-    }
-
-    // ===============================
-    // ממשק העלאת אוצר מילים חדש (בלוח ניהול)
-    // ===============================
-    document.getElementById("loadVocabBtn").addEventListener("click", function() {
-      const nameInput = document.getElementById("vocabName").value.trim();
-      const vocabName = nameInput ? nameInput : "סט אוצר מילים חדש";
-      const fileInput = document.getElementById("vocabUpload");
-      if (fileInput.files.length === 0) {
-        alert("נא לבחור קובץ JSON עם אוצר המילים");
-        return;
-      }
-      
-      const file = fileInput.files[0];
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const parsed = JSON.parse(e.target.result);
-          let wordsArray = [];
-          if (Array.isArray(parsed)) {
-            wordsArray = parsed;
-          } else if (parsed.words && Array.isArray(parsed.words)) {
-            wordsArray = parsed.words;
-          } else {
-            alert("מבנה קובץ לא תקין. יש לוודא שמדובר במערך או באובייקט עם 'words'.");
-            return;
-          }
-          const newSet = {
-            name: vocabName,
-            words: wordsArray
-          };
-          vocabSets.push(newSet);
-          currentVocabulary = newSet.words;
-          saveVocabSets();
-          updateVocabSelect();
-          alert("סט אוצר מילים הועלה בהצלחה!");
-          startGame();
-          // סגירת לוח ההעלאה לאחר ההעלאה
-          hideUploadPanel();
-        } catch (error) {
-          alert("שגיאה בקריאת הקובץ: " + error.message);
-        }
-      };
-      reader.readAsText(file);
-    });
-
-    // עדכון הבחירה כאשר המשתמש בוחר סט אחר
-    document.getElementById("vocabSelect").addEventListener("change", function() {
-      const selectedIndex = parseInt(this.value, 10);
-      if (!isNaN(selectedIndex) && vocabSets[selectedIndex]) {
-        currentVocabulary = vocabSets[selectedIndex].words;
-        startGame();
-      }
-    });
-
-    // ===============================
-    // קוד משחק הטריוויה
-    // ===============================
-    let gameWords = [];          
+    let gameWordsQueue = [];
+    let gameWords = [];
     let currentQuestionIndex = 0;
     let score = 0;
     const totalQuestionsPerRound = 10;
-
-    function selectGameWords() {
-      const vocabCopy = [...currentVocabulary];
-      gameWords = [];
-      for (let i = 0; i < totalQuestionsPerRound; i++) {
-        if (vocabCopy.length === 0) break;
-        const randomIndex = Math.floor(Math.random() * vocabCopy.length);
-        gameWords.push(vocabCopy.splice(randomIndex, 1)[0]);
-      }
-    }
 
     function shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -357,6 +158,14 @@
         [array[i], array[j]] = [array[j], array[i]];
       }
       return array;
+    }
+
+    function selectGameWords() {
+      if (gameWordsQueue.length < totalQuestionsPerRound) {
+        gameWordsQueue = [...defaultVocabulary];
+        shuffleArray(gameWordsQueue);
+      }
+      gameWords = gameWordsQueue.splice(0, totalQuestionsPerRound);
     }
 
     function displayQuestion() {
@@ -369,7 +178,7 @@
       document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
 
       let options = [...currentWord.options];
-      options = shuffleArray(options);
+      shuffleArray(options);
 
       const optionsList = document.getElementById('optionsList');
       optionsList.innerHTML = '';
@@ -385,63 +194,9 @@
       document.getElementById('feedbackMessage').textContent = '';
     }
 
-    function handleAnswer(selectedOption, btn, currentWord) {
-      const buttons = document.querySelectorAll('.option-btn');
-      buttons.forEach(button => button.disabled = true);
-
-      let delay = 1200;
-      if (selectedOption === currentWord.hebrew) {
-        btn.classList.add('correct');
-        score++;
-        document.getElementById('feedbackMessage').textContent = "יפה! תשובה נכונה.";
-      } else {
-        btn.classList.add('wrong');
-        buttons.forEach(button => {
-          if (button.textContent === currentWord.hebrew) {
-            button.classList.add('correct');
-          }
-        });
-        document.getElementById('feedbackMessage').textContent = `תשובה שגויה. התשובה הנכונה: ${currentWord.hebrew}`;
-        delay = 2300;
-      }
-      document.getElementById('score').textContent = score;
-      updateLocalStorage(selectedOption === currentWord.hebrew);
-
-      setTimeout(() => {
-        currentQuestionIndex++;
-        displayQuestion();
-      }, delay);
-    }
-
-    function updateLocalStorage(isCorrect) {
-      let totalQuestions = parseInt(localStorage.getItem('totalQuestions') || '0', 10);
-      let totalCorrect = parseInt(localStorage.getItem('totalCorrect') || '0', 10);
-      totalQuestions++;
-      if (isCorrect) {
-        totalCorrect++;
-      }
-      localStorage.setItem('totalQuestions', totalQuestions);
-      localStorage.setItem('totalCorrect', totalCorrect);
-    }
-
     function endRound() {
       document.getElementById('questionText').textContent = "סיימת את הסט!";
       document.getElementById('optionsList').innerHTML = '';
-      
-      let feedback;
-      if (score <= 3) {
-        feedback = "נסית יפה! טוב שיש הרבה לאן להשתפר!";
-      } else if (score <= 5) {
-        feedback = "לא רע! אבל אפשר לשאוף ליותר!";
-      } else if (score <= 7) {
-        feedback = "אני קורא לזה תוצאה סבירה פלוס! מזהים את הפוטנציאל שלך!";
-      } else if (score <= 9) {
-        feedback = "הופה! נהיה לי חם! זה די קרוב למצוין!";
-      } else if (score === 10) {
-        feedback = "מצוין! כל התשובות נכונות! שווה להשקיע בך!";
-      }
-      
-      document.getElementById('feedbackMessage').textContent = feedback;
       document.getElementById('restartBtn').style.display = 'inline-block';
     }
 
@@ -454,29 +209,7 @@
       displayQuestion();
     }
 
-    // ===============================
-    // ניהול לוח ההעלאה (פתיחה וסגירה)
-    // ===============================
-    function showUploadPanel() {
-      document.getElementById("uploadPanel").style.display = "block";
-    }
-    function hideUploadPanel() {
-      document.getElementById("uploadPanel").style.display = "none";
-    }
-
-    // מאזין ללחיצה על אייקון ההמבורגר
-    document.getElementById("hamburgerMenu").addEventListener("click", showUploadPanel);
-    // מאזין ללחיצה על אייקון הסגירה בתוך לוח ההעלאה
-    document.getElementById("closeUploadPanel").addEventListener("click", hideUploadPanel);
-
-    // ===============================
-    // טעינה והפעלה
-    // ===============================
-    window.onload = function() {
-      loadVocabSets();
-      startGame();
-    };
-
+    window.onload = startGame;
     document.getElementById('restartBtn').addEventListener('click', startGame);
   </script>
 </body>
