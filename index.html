@@ -15,7 +15,7 @@
     /* Game container styling */
     .container {
       max-width: 600px;
-      margin: 60px auto 20px auto; /* Adds top margin so the hamburger icon is not hidden */
+      margin: 60px auto 20px auto; /* Adds top margin so the hamburger icon is visible */
       background-color: #fff;
       padding: 20px;
       border-radius: 8px;
@@ -82,7 +82,7 @@
       cursor: pointer;
       z-index: 1001;
     }
-    /* Vocabulary management panel styling (hidden by default) */
+    /* Vocabulary upload panel styling (hidden by default) */
     #uploadPanel {
       position: fixed;
       top: 0;
@@ -130,7 +130,7 @@
   <!-- Hamburger menu icon -->
   <div id="hamburgerMenu">☰</div>
 
-  <!-- Vocabulary management panel (hidden by default) -->
+  <!-- Vocabulary upload panel (hidden by default) -->
   <div id="uploadPanel">
     <span id="closeUploadPanel">✖</span>
     <h2>ניהול אוצר מילים</h2>
@@ -151,7 +151,7 @@
   <!-- Trivia game container -->
   <div class="container">
     <h1>משחק טריוויה</h1>
-    <div class="progress">שאלה <span id="currentQuestion">0</span> מתוך <span id="totalQuestions">0</span></div>
+    <div class="progress">שאלה <span id="currentQuestion">0</span> מתוך <span id="totalQuestions">10</span></div>
     <div class="score">ניקוד: <span id="score">0</span></div>
     <div class="question" id="questionText">שאלה תופיע כאן</div>
     <ul class="options" id="optionsList">
@@ -163,90 +163,79 @@
 
   <script>
     /*********************************************************************
-     * This version of the game uses ALL the vocabulary words provided
-     * (e.g., if you supply 61 words, all 61 words will be used in random order)
+     * Vocabulary Definitions (default vocabulary with 62 entries)
      *********************************************************************/
-
-    // ===============================
-    // Vocabulary definitions
-    // ===============================
     const defaultVocabulary = [
-      { english: "autumn",       hebrew: "סתיו",          options: ["סתיו", "אביב", "קיץ", "חורף"] },
-      { english: "basketball",   hebrew: "כדורסל",        options: ["כדורסל", "טניס", "גולף", "בייסבול"] },
-      { english: "beautiful",    hebrew: "יפה",           options: ["יפה", "זוהר", "מטריף", "קסום"] },
-      { english: "boots",        hebrew: "מגפיים",        options: ["מגפיים", "נעליים", "סנדלים", "נעלי ספורט"] },
-      { english: "children",     hebrew: "ילדים",         options: ["ילדים", "מבוגרים", "תינוקות", "נוער"] },
-      { english: "climb",        hebrew: "לטפס",          options: ["לטפס", "לרוץ", "לשחות", "לזחול"] },
-      { english: "cloud",        hebrew: "ענן",          options: ["ענן", "גשם", "ברק", "ערפל"] },
-      { english: "coat",         hebrew: "מעיל",          options: ["מעיל", "ג'קט", "סוודר", "קפוצ'ון"] },
-      { english: "cold",         hebrew: "קר",           options: ["קר", "חם", "כשהלשון נדבקת לקרח", "רותח"] },
-      { english: "come",         hebrew: "לבוא",         options: ["לבוא", "ללכת", "לברוח", "לנסוע"] },
-      { english: "dress",        hebrew: "שמלה",         options: ["שמלה", "חולצה", "נוצות טווס", "מכנסיים"] },
-      { english: "eat",          hebrew: "לאכול",        options: ["לאכול", "לשתות", "לבשל", "לנקות"] },
-      { english: "eyes",         hebrew: "עיניים",        options: ["עיניים", "אוזניים", "אף", "פה"] },
-      { english: "father",       hebrew: "אבא",           options: ["אבא", "אמא", "אח", "בן"] },
-      { english: "fly a kite",   hebrew: "להעיף עפיפון",  options: ["לטוס לחלל", "לעוף", "להעיף עפיפון", "להוציא ילד מהכיתה"] },
-      { english: "funny",        hebrew: "מצחיק",        options: ["מצחיק", "עצוב", "סבבה אגוזים", "חלוטרה"] },
-      { english: "game",         hebrew: "משחק",         options: ["משחק", "להתחלק על השכל", "ספורט", "מוזיקה"] },
-      { english: "good for you", hebrew: "כל הכבוד לך",  options: ["כל הכבוד לך", "רע לך", "מצוין", "בסדר"] },
-      { english: "home",         hebrew: "בית",          options: ["בית", "משרד", "בית ספר", "חנות"] },
-      { english: "ice cream",    hebrew: "גלידה",        options: ["גלידה", "עוגה", "שוקולד", "קינוח"] },
-      { english: "make",         hebrew: "לעשות",        options: ["לעשות", "להכות", "לבדוק", "לבקש"] },
-      { english: "mother",       hebrew: "אמא",          options: ["אמא", "אבא", "אח", "בת"] },
-      { english: "mouth",        hebrew: "פה",           options: ["פה", "עיניים", "אוזניים", "לשון"] },
-      { english: "near",         hebrew: "קרוב",         options: ["קרוב", "רחוק", "ילד בשם נירו", "מסובך"] },
-      { english: "nose",         hebrew: "אף",           options: ["אף", "עיניים", "פה", "אוזניים"] },
-      { english: "okay",         hebrew: "בסדר",         options: ["בסדר", "לא בסדר", "ככה ככה", "יאללה שמענו אותך"] },
-      { english: "old",          hebrew: "זקן",         options: ["זקן", "צעיר", "כבוד", "חדש"] },
-      { english: "pants",        hebrew: "מכנסיים",      options: ["מכנסיים", "חולצה", "גרביים", "נעליים"] },
-      { english: "park",         hebrew: "פארק",         options: ["פארק", "מרק אפונה", "מרכז קניות", "חנות"] },
-      { english: "picture",      hebrew: "תמונה",        options: ["תמונה", "ציור", "פוסטר", "מראה"] },
-      { english: "play",         hebrew: "לשחק",         options: ["לשחק", "לעבוד", "לקרוא", "לכתוב"] },
-      { english: "play football",hebrew: "לשחק כדורגל",  options: ["לשחק כדורגל", "לשחק כדורסל", "ללטף פיטבול", "לשחק בייסבול"] },
-      { english: "pool",         hebrew: "בריכה",        options: ["בריכה", "אגם", "נהר", "ים"] },
-      { english: "read a book",  hebrew: "לקרוא ספר",     options: ["לקרוא ספר", "לקרוא מהמחברת", "לצייר כבשה", "לקנות ספר"] },
-      { english: "shirt",        hebrew: "חולצה",        options: ["חולצה", "שמלה", "מעיל", "מכנסיים"] },
-      { english: "shoes",        hebrew: "נעליים",       options: ["נעליים", "מגפיים", "סנדלים", "נעלי ספורט"] },
-      { english: "sky",          hebrew: "שמיים",        options: ["שמיים", "כוכב", "ירח", "שמש"] },
-      { english: "sleep",        hebrew: "לישון",        options: ["לישון", "להתעורר", "לחלום", "לנוח"] },
-      { english: "snow",         hebrew: "שלג",         options: ["שלג", "גשם", "ברד בטעם גויאבה", "ערפל"] },
-      { english: "socks",        hebrew: "גרביים",       options: ["גרביים", "מכנסיים", "חולצה", "נעליים"] },
-      { english: "spring",       hebrew: "אביב",         options: ["אביב", "קיץ", "סתיו", "חורף"] },
-      { english: "stand",        hebrew: "לעמוד",        options: ["לעמוד", "לשבת", "לשכב", "לרוץ"] },
-      { english: "store",        hebrew: "חנות",         options: ["חנות", "מסעדה", "בית ספר", "פארק"] },
-      { english: "summer",       hebrew: "קיץ",         options: ["קיץ", "אביב", "סתיו", "חורף"] },
-      { english: "sunny",        hebrew: "שמשי",        options: ["שמשי", "מעונן", "גשום", "קר"] },
-      { english: "they",         hebrew: "הם",           options: ["הם", "אני", "אתה", "היא"] },
-      { english: "too",          hebrew: "גם",          options: ["גם", "מעט", "בדיוק", "רק"] },
-      { english: "tree",         hebrew: "עץ",           options: ["עץ", "שיח", "פרח", "עלה"] },
-      { english: "wall",         hebrew: "קיר",          options: ["קיר", "תקרה", "רצפה", "דלת"] },
-      { english: "warm",         hebrew: "חם",           options: ["חם", "קר", "תולעת פירות", "צונן"] },
-      { english: "autumn", hebrew: "סתיו", options: ["סתיו", "אביב", "קיץ", "חורף"] },
-      { english: "basketball", hebrew: "כדורסל", options: ["כדורסל", "טניס", "גולף", "בייסבול"] },
-      { english: "beautiful", hebrew: "יפה", options: ["יפה", "זוהר", "מטריף", "קסום"] },
-      { english: "boots", hebrew: "מגפיים", options: ["מגפיים", "נעליים", "סנדלים", "נעלי ספורט"] },
-      { english: "children", hebrew: "ילדים", options: ["ילדים", "מבוגרים", "תינוקות", "נוער"] },
-      { english: "climb", hebrew: "לטפס", options: ["לטפס", "לרוץ", "לשחות", "לזחול"] },
-      { english: "cloud", hebrew: "ענן", options: ["ענן", "גשם", "ברק", "ערפל"] },
-      { english: "cold", hebrew: "קר", options: ["קר", "חם", "כפור", "צונן"] },
-      { english: "coat", hebrew: "מעיל", options: ["מעיל", "סוודר", "קפוצ'ון", "ג'קט"] },
-      { english: "come", hebrew: "לבוא", options: ["לבוא", "ללכת", "להגיע", "לנסוע"] },
-      { english: "Favorite", hebrew: "מועדף", options: ["מועדף", "נאה", "אהוב", "בזוי"] },
-      { english: "Meet", hebrew: "לפגוש", options: ["לפגוש", "להיפגש", "להתפרד", "להתעלם"] },
-      { english: "Swim", hebrew: "לשחות", options: ["לשחות", "לרוץ", "לטפס", "לקפוץ"] },
-      { english: "Sandwiches", hebrew: "סנדוויצים", options: ["סנדוויצים", "המבורגר", "פיצה", "מוקפץ"] },
-      { english: "Tuna", hebrew: "טונה", options: ["טונה", "סלמון", "קרפיון", "דג"] },
-      { english: "Salad", hebrew: "סלט", options: ["סלט", "מרק", "מנה חמה", "קינוח"] },
-      { english: "Weather", hebrew: "מזג אוויר", options: ["מזג אוויר", "אקלים", "טמפרטורה", "לחות"] }
+      { english: "autumn",       hebrew: "סתיו",          options: ["סתיו", "אביב", "קיץ", "חורף"] },   // 1
+      { english: "basketball",   hebrew: "כדורסל",        options: ["כדורסל", "טניס", "גולף", "בייסבול"] }, // 2
+      { english: "beautiful",    hebrew: "יפה",           options: ["יפה", "זוהר", "מטריף", "קסום"] },      // 3
+      { english: "boots",        hebrew: "מגפיים",        options: ["מגפיים", "נעליים", "סנדלים", "נעלי ספורט"] }, // 4
+      { english: "children",     hebrew: "ילדים",         options: ["ילדים", "מבוגרים", "תינוקות", "נוער"] },       // 5
+      { english: "climb",        hebrew: "לטפס",          options: ["לטפס", "לרוץ", "לשחות", "לזחול"] },          // 6
+      { english: "cloud",        hebrew: "ענן",          options: ["ענן", "גשם", "ברק", "ערפל"] },             // 7
+      { english: "coat",         hebrew: "מעיל",          options: ["מעיל", "ג'קט", "סוודר", "קפוצ'ון"] },         // 8
+      { english: "cold",         hebrew: "קר",           options: ["קר", "חם", "כשהלשון נדבקת לקרח", "רותח"] },    // 9
+      { english: "come",         hebrew: "לבוא",         options: ["לבוא", "ללכת", "לברוח", "לנסוע"] },         // 10
+      { english: "dress",        hebrew: "שמלה",         options: ["שמלה", "חולצה", "נוצות טווס", "מכנסיים"] },   // 11
+      { english: "eat",          hebrew: "לאכול",        options: ["לאכול", "לשתות", "לבשל", "לנקות"] },         // 12
+      { english: "eyes",         hebrew: "עיניים",        options: ["עיניים", "אוזניים", "אף", "פה"] },             // 13
+      { english: "father",       hebrew: "אבא",           options: ["אבא", "אמא", "אח", "בן"] },                  // 14
+      { english: "fly a kite",   hebrew: "להעיף עפיפון",  options: ["לטוס לחלל", "לעוף", "להעיף עפיפון", "להוציא ילד מהכיתה"] }, // 15
+      { english: "funny",        hebrew: "מצחיק",        options: ["מצחיק", "עצוב", "סבבה אגוזים", "חלוטרה"] },   // 16
+      { english: "game",         hebrew: "משחק",         options: ["משחק", "להתחלק על השכל", "ספורט", "מוזיקה"] },    // 17
+      { english: "good for you", hebrew: "כל הכבוד לך",  options: ["כל הכבוד לך", "רע לך", "מצוין", "בסדר"] },  // 18
+      { english: "home",         hebrew: "בית",          options: ["בית", "משרד", "בית ספר", "חנות"] },         // 19
+      { english: "ice cream",    hebrew: "גלידה",        options: ["גלידה", "עוגה", "שוקולד", "קינוח"] },         // 20
+      { english: "make",         hebrew: "לעשות",        options: ["לעשות", "להכות", "לבדוק", "לבקש"] },          // 21
+      { english: "mother",       hebrew: "אמא",          options: ["אמא", "אבא", "אח", "בת"] },                 // 22
+      { english: "mouth",        hebrew: "פה",           options: ["פה", "עיניים", "אוזניים", "לשון"] },           // 23
+      { english: "near",         hebrew: "קרוב",         options: ["קרוב", "רחוק", "ילד בשם נירו", "מסובך"] },      // 24
+      { english: "nose",         hebrew: "אף",           options: ["אף", "עיניים", "פה", "אוזניים"] },           // 25
+      { english: "okay",         hebrew: "בסדר",         options: ["בסדר", "לא בסדר", "ככה ככה", "יאללה שמענו אותך"] }, // 26
+      { english: "old",          hebrew: "זקן",         options: ["זקן", "צעיר", "כבוד", "חדש"] },           // 27
+      { english: "pants",        hebrew: "מכנסיים",      options: ["מכנסיים", "חולצה", "גרביים", "נעליים"] },       // 28
+      { english: "park",         hebrew: "פארק",         options: ["פארק", "מרק אפונה", "מרכז קניות", "חנות"] },    // 29
+      { english: "picture",      hebrew: "תמונה",        options: ["תמונה", "ציור", "פוסטר", "מראה"] },           // 30
+      { english: "play",         hebrew: "לשחק",         options: ["לשחק", "לעבוד", "לקרוא", "לכתוב"] },         // 31
+      { english: "play football",hebrew: "לשחק כדורגל",  options: ["לשחק כדורגל", "לשחק כדורסל", "ללטף פיטבול", "לשחק בייסבול"] }, // 32
+      { english: "pool",         hebrew: "בריכה",        options: ["בריכה", "אגם", "נהר", "ים"] },              // 33
+      { english: "read a book",  hebrew: "לקרוא ספר",     options: ["לקרוא ספר", "לקרוא מהמחברת", "לצייר כבשה", "לקנות ספר"] }, // 34
+      { english: "shirt",        hebrew: "חולצה",        options: ["חולצה", "שמלה", "מעיל", "מכנסיים"] },       // 35
+      { english: "shoes",        hebrew: "נעליים",       options: ["נעליים", "מגפיים", "סנדלים", "נעלי ספורט"] },   // 36
+      { english: "sky",          hebrew: "שמיים",        options: ["שמיים", "כוכב", "ירח", "שמש"] },             // 37
+      { english: "sleep",        hebrew: "לישון",        options: ["לישון", "להתעורר", "לחלום", "לנוח"] },        // 38
+      { english: "snow",         hebrew: "שלג",         options: ["שלג", "גשם", "ברד בטעם גויאבה", "ערפל"] },   // 39
+      { english: "socks",        hebrew: "גרביים",       options: ["גרביים", "מכנסיים", "חולצה", "נעליים"] },       // 40
+      { english: "spring",       hebrew: "אביב",         options: ["אביב", "קיץ", "סתיו", "חורף"] },             // 41
+      { english: "stand",        hebrew: "לעמוד",        options: ["לעמוד", "לשבת", "לשכב", "לרוץ"] },          // 42
+      { english: "store",        hebrew: "חנות",         options: ["חנות", "מסעדה", "בית ספר", "פארק"] },          // 43
+      { english: "summer",       hebrew: "קיץ",         options: ["קיץ", "אביב", "סתיו", "חורף"] },             // 44
+      { english: "sunny",        hebrew: "שמשי",        options: ["שמשי", "מעונן", "גשום", "קר"] },              // 45
+      { english: "they",         hebrew: "הם",           options: ["הם", "אני", "אתה", "היא"] },               // 46
+      { english: "too",          hebrew: "גם",          options: ["גם", "מעט", "בדיוק", "רק"] },              // 47
+      { english: "tree",         hebrew: "עץ",           options: ["עץ", "שיח", "פרח", "עלה"] },               // 48
+      { english: "wall",         hebrew: "קיר",          options: ["קיר", "תקרה", "רצפה", "דלת"] },             // 49
+      { english: "warm",         hebrew: "חם",           options: ["חם", "קר", "תולעת פירות", "צונן"] },         // 50
+      { english: "Favorite",     hebrew: "מועדף",       options: ["מועדף", "נאה", "אהוב", "בזוי"] },         // 51
+      { english: "Meet",         hebrew: "לפגוש",       options: ["לפגוש", "להיפגש", "להתפרד", "להתעלם"] },       // 52
+      { english: "Swim",         hebrew: "לשחות",       options: ["לשחות", "לרוץ", "לטפס", "לקפוץ"] },           // 53
+      { english: "Sandwiches",   hebrew: "סנדוויצים",    options: ["סנדוויצים", "המבורגר", "פיצה", "מוקפץ"] },      // 54
+      { english: "Tuna",         hebrew: "טונה",        options: ["טונה", "סלמון", "קרפיון", "דג"] },              // 55
+      { english: "Salad",        hebrew: "סלט",         options: ["סלט", "מרק", "מנה חמה", "קינוח"] },             // 56
+      { english: "Weather",      hebrew: "מזג אוויר",   options: ["מזג אוויר", "אקלים", "טמפרטורה", "לחות"] },       // 57
+      { english: "With",         hebrew: "עם",          options: ["עם", "בלי", "על", "עד"] },                // 58
+      { english: "Today",        hebrew: "היום",        options: ["היום", "מחר", "אתמול", "עכשיו"] },             // 59
+      { english: "Can",          hebrew: "יכול",        options: ["יכול", "רוצה", "צריך", "אולי"] },               // 60
+      { english: "Can't",        hebrew: "לא יכול",     options: ["לא יכול", "יכול", "רוצה", "צריך"] },            // 61
+      { english: "Example",      hebrew: "דוגמה",       options: ["דוגמה", "מופת", "תבנית", "מדגם"] }             // 62
     ];
     
-    // ===============================
-    // Vocabulary set management (each set is { name, words })
-    // ===============================
+    /*********************************************************************
+     * Vocabulary Set Management (each set is an object with { name, words })
+     *********************************************************************/
     let vocabSets = [];
-    // The variable that holds the current vocabulary set
     let currentVocabulary = [];
-
+    
     function loadVocabSets() {
       const stored = localStorage.getItem("vocabSets");
       if (stored) {
@@ -257,7 +246,6 @@
           vocabSets = [];
         }
       }
-      // If there are no sets, load the default vocabulary set
       if (!vocabSets || vocabSets.length === 0) {
         vocabSets = [{
           name: "אוצר מילים ברירת מחדל",
@@ -265,15 +253,14 @@
         }];
         saveVocabSets();
       }
-      // By default, choose the last set
       currentVocabulary = vocabSets[vocabSets.length - 1].words;
       updateVocabSelect();
     }
-
+    
     function saveVocabSets() {
       localStorage.setItem("vocabSets", JSON.stringify(vocabSets));
     }
-
+    
     function updateVocabSelect() {
       const select = document.getElementById("vocabSelect");
       select.innerHTML = "";
@@ -287,10 +274,10 @@
         select.appendChild(option);
       });
     }
-
-    // ===============================
-    // Vocabulary upload panel management
-    // ===============================
+    
+    /*********************************************************************
+     * Vocabulary Upload Panel Management
+     *********************************************************************/
     document.getElementById("loadVocabBtn").addEventListener("click", function() {
       const nameInput = document.getElementById("vocabName").value.trim();
       const vocabName = nameInput ? nameInput : "סט אוצר מילים חדש";
@@ -324,7 +311,6 @@
           updateVocabSelect();
           alert("סט אוצר מילים הועלה בהצלחה!");
           startGame();
-          // Close the upload panel after successful upload
           hideUploadPanel();
         } catch (error) {
           alert("שגיאה בקריאת הקובץ: " + error.message);
@@ -332,8 +318,7 @@
       };
       reader.readAsText(file);
     });
-
-    // Update selection when the user chooses another vocabulary set
+    
     document.getElementById("vocabSelect").addEventListener("change", function() {
       const selectedIndex = parseInt(this.value, 10);
       if (!isNaN(selectedIndex) && vocabSets[selectedIndex]) {
@@ -341,39 +326,48 @@
         startGame();
       }
     });
-
-    // ===============================
-    // Trivia game code
-    // ===============================
+    
+    /*********************************************************************
+     * Trivia Game Code (10-Question Game with End-of-Round Feedback)
+     *********************************************************************/
     let gameWords = [];          
     let currentQuestionIndex = 0;
     let score = 0;
-
-    // Modified selectGameWords() to use ALL words provided in currentVocabulary in random order.
+    const totalQuestionsPerRound = 10;
+    
+    // Select exactly 10 random words from currentVocabulary
     function selectGameWords() {
       const vocabCopy = [...currentVocabulary];
       gameWords = [];
-      // Loop until vocabCopy is empty, so all words are used.
-      while (vocabCopy.length > 0) {
+      const questionsCount = Math.min(totalQuestionsPerRound, vocabCopy.length);
+      for (let i = 0; i < questionsCount; i++) {
         const randomIndex = Math.floor(Math.random() * vocabCopy.length);
         gameWords.push(vocabCopy.splice(randomIndex, 1)[0]);
       }
     }
-
+    
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+    
     function displayQuestion() {
       if (currentQuestionIndex >= gameWords.length) {
         endRound();
         return;
       }
       const currentWord = gameWords[currentQuestionIndex];
+      // Display the question with the English word in bold
       document.getElementById('questionText').innerHTML = `<p>פירוש המילה</p><p><b>${currentWord.english}</b></p>`;
       document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
-      // Update total questions dynamically to reflect all words being used
-      document.getElementById('totalQuestions').textContent = gameWords.length;
-      
+      document.getElementById('totalQuestions').textContent = totalQuestionsPerRound;
+    
       let options = [...currentWord.options];
       options = shuffleArray(options);
-
+    
       const optionsList = document.getElementById('optionsList');
       optionsList.innerHTML = '';
       options.forEach(option => {
@@ -387,11 +381,11 @@
       });
       document.getElementById('feedbackMessage').textContent = '';
     }
-
+    
     function handleAnswer(selectedOption, btn, currentWord) {
       const buttons = document.querySelectorAll('.option-btn');
       buttons.forEach(button => button.disabled = true);
-
+    
       let delay = 1200;
       if (selectedOption === currentWord.hebrew) {
         btn.classList.add('correct');
@@ -409,13 +403,13 @@
       }
       document.getElementById('score').textContent = score;
       updateLocalStorage(selectedOption === currentWord.hebrew);
-
+    
       setTimeout(() => {
         currentQuestionIndex++;
         displayQuestion();
       }, delay);
     }
-
+    
     function updateLocalStorage(isCorrect) {
       let totalQuestions = parseInt(localStorage.getItem('totalQuestions') || '0', 10);
       let totalCorrect = parseInt(localStorage.getItem('totalCorrect') || '0', 10);
@@ -426,13 +420,28 @@
       localStorage.setItem('totalQuestions', totalQuestions);
       localStorage.setItem('totalCorrect', totalCorrect);
     }
-
+    
     function endRound() {
       document.getElementById('questionText').textContent = "סיימת את הסט!";
       document.getElementById('optionsList').innerHTML = '';
+      
+      let feedback;
+      if (score <= 3) {
+        feedback = "נסית יפה! טוב שיש הרבה לאן להשתפר!";
+      } else if (score <= 5) {
+        feedback = "לא רע! אבל אפשר לשאוף ליותר!";
+      } else if (score <= 7) {
+        feedback = "אני קורא לזה תוצאה סבירה פלוס! מזהים את הפוטנציאל שלך!";
+      } else if (score <= 9) {
+        feedback = "הופה! נהיה לי חם! זה די קרוב למצוין!";
+      } else if (score === 10) {
+        feedback = "מצוין! כל התשובות נכונות! שווה להשקיע בך!";
+      }
+      
+      document.getElementById('feedbackMessage').textContent = feedback;
       document.getElementById('restartBtn').style.display = 'inline-block';
     }
-
+    
     function startGame() {
       score = 0;
       currentQuestionIndex = 0;
@@ -441,18 +450,10 @@
       selectGameWords();
       displayQuestion();
     }
-
-    function shuffleArray(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    }
-
-    // ===============================
-    // Upload panel management (show/hide)
-    // ===============================
+    
+    /*********************************************************************
+     * Upload Panel Management (show/hide)
+     *********************************************************************/
     function showUploadPanel() {
       document.getElementById("uploadPanel").style.display = "block";
     }
@@ -461,10 +462,10 @@
     }
     document.getElementById("hamburgerMenu").addEventListener("click", showUploadPanel);
     document.getElementById("closeUploadPanel").addEventListener("click", hideUploadPanel);
-
-    // ===============================
-    // Initial load and game start
-    // ===============================
+    
+    /*********************************************************************
+     * Initial Load and Game Start
+     *********************************************************************/
     window.onload = function() {
       loadVocabSets();
       startGame();
