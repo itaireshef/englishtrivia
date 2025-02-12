@@ -163,12 +163,12 @@
 
   <script>
     // Global variables for speech synthesis
-    let soundEnabled = true;           // Default state: sound on
+    let soundEnabled = true;           // Default: sound on
     let currentDisplayedWord = "";     // Holds the current English word
 
     // Function to speak a word using the Web Speech API
     function speakWord(word) {
-      if (!soundEnabled) return; // Do nothing if muted
+      if (!soundEnabled) return;
       const utterance = new SpeechSynthesisUtterance(word);
       utterance.lang = "en-US";
       speechSynthesis.speak(utterance);
@@ -348,18 +348,6 @@
     let score = 0;
     const totalQuestionsPerRound = 10;
     
-    // Global variables for speech synthesis
-    let soundEnabled = true;           // Default: sound on
-    let currentDisplayedWord = "";     // Holds the currently displayed English word
-    
-    // Function to speak a word using the Web Speech API
-    function speakWord(word) {
-      if (!soundEnabled) return;
-      const utterance = new SpeechSynthesisUtterance(word);
-      utterance.lang = "en-US";
-      speechSynthesis.speak(utterance);
-    }
-    
     // Select exactly 10 random words from currentVocabulary
     function selectGameWords() {
       const vocabCopy = [...currentVocabulary];
@@ -386,23 +374,22 @@
       }
       const currentWord = gameWords[currentQuestionIndex];
       currentDisplayedWord = currentWord.english;
-      // Build the question HTML with the English word and a sound toggle icon
+      // Build the question HTML with the English word and sound toggle icon
       const englishHTML = `<p>פירוש המילה</p>
                            <p id="englishWord" style="cursor: pointer;">
                              <b>${currentWord.english}</b>
-                             <span id="soundToggle" style="cursor: pointer;">${soundEnabled ? "🔊" : "🔇"}</span>
+                             <span id="soundToggle" style="cursor: pointer; margin-left: 10px;">${soundEnabled ? "🔊" : "🔇"}</span>
                            </p>`;
       document.getElementById('questionText').innerHTML = englishHTML;
       
-      // Attach event listener for repeating speech when clicking on the english word (excluding the toggle)
+      // Event listener for repeating speech when clicking on the english word (excluding the toggle)
       document.getElementById("englishWord").addEventListener("click", function(event) {
-        // Prevent click on the sound icon from triggering this listener
         if (event.target.id !== "soundToggle") {
           speakWord(currentDisplayedWord);
         }
       });
       
-      // Attach event listener for the sound toggle icon
+      // Event listener for the sound toggle icon
       document.getElementById("soundToggle").addEventListener("click", function(event) {
         event.stopPropagation(); // Prevent parent click event
         soundEnabled = !soundEnabled;
