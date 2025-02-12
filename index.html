@@ -69,6 +69,10 @@
       color: white;
       cursor: pointer;
     }
+    /* Increase the font size for the English word */
+    .english-word {
+      font-size: 1.5em;
+    }
   </style>
 </head>
 <body>
@@ -174,7 +178,9 @@
         return;
       }
       const currentWord = gameWords[currentQuestionIndex];
-      document.getElementById('questionText').innerHTML = `<p>פירוש המילה</p><p><b>${currentWord.english}</b></p>`;
+      // The English word is now wrapped in a <span> with class "english-word"
+      document.getElementById('questionText').innerHTML =
+        `<p>פירוש המילה</p><p><b><span class="english-word">${currentWord.english}</span></b></p>`;
       document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
 
       let options = [...currentWord.options];
@@ -192,6 +198,34 @@
         optionsList.appendChild(li);
       });
       document.getElementById('feedbackMessage').textContent = '';
+    }
+
+    function handleAnswer(selectedOption, btn, currentWord) {
+      const buttons = document.querySelectorAll('.option-btn');
+      buttons.forEach(button => button.disabled = true);
+
+      let delay = 1200;
+      if (selectedOption === currentWord.hebrew) {
+        btn.classList.add('correct');
+        score++;
+        document.getElementById('feedbackMessage').textContent = "יפה! תשובה נכונה.";
+      } else {
+        btn.classList.add('wrong');
+        buttons.forEach(button => {
+          if (button.textContent === currentWord.hebrew) {
+            button.classList.add('correct');
+          }
+        });
+        document.getElementById('feedbackMessage').textContent =
+          `תשובה שגויה. התשובה הנכונה: ${currentWord.hebrew}`;
+        delay = 2300;
+      }
+      document.getElementById('score').textContent = score;
+
+      setTimeout(() => {
+        currentQuestionIndex++;
+        displayQuestion();
+      }, delay);
     }
 
     function endRound() {
@@ -214,3 +248,4 @@
   </script>
 </body>
 </html>
+
